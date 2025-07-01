@@ -110,7 +110,7 @@
             <textarea
               id="cssInput"
               class="w-full h-80 p-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 resize-none bg-slate-50 text-sm"
-              placeholder="/* Paste your CSS code here */&#10;&#10;.card {&#10;  background-color: #fff;&#10;  border-radius: 8px;&#10;  padding: 24px;&#10;  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);&#10;}"
+              placeholder="/* Paste your CSS code here */&#10;&#10;.title {&#10;  font-family: 'cairo', sans-serif;&#10;  font-size: 24px;&#10;  color: #333;&#10;}"
             ></textarea>
           </div>
 
@@ -253,27 +253,54 @@
 
         // --- Show loading state ---
         tailwindOutput.classList.add("hidden");
-        loader.style.display = "flex"; // Use style.display for flex
+        loader.style.display = "flex";
         convertButton.disabled = true;
         convertButton.textContent = "Converting...";
 
         try {
-          // Construct the prompt for the AI model
-          const prompt = `You are an expert Tailwind CSS developer. Convert the following CSS code into a single line of Tailwind CSS classes. Provide only the class names, without any CSS selectors, explanations, or extra text.
-                
-                CSS CODE:
-                \`\`\`css
-                ${css}
-                \`\`\`
+          // --- CONSTRUCT THE IMPROVED PROMPT ---
+          const prompt = `You are an expert Tailwind CSS developer. Convert the following CSS code into a single line of Tailwind CSS classes.
 
-                TAILWIND CLASSES:`;
+          **Rules:**
+          1.  If a CSS value has a direct mapping to a standard Tailwind class, use the standard class (e.g., 'font-weight: 700;' -> 'font-bold').
+          2.  If a CSS value does NOT have a direct mapping, you MUST use Tailwind's arbitrary value syntax. For example:
+              - 'color: #0e9d57;' becomes 'text-[#0e9d57]'
+              - 'font-size: 15px;' becomes 'text-[15px]'
+          3.  If a CSS value uses a 'var()' function with a fallback value, IGNORE the variable name and USE the fallback value for the conversion. For example, 'color: var(--some-var, #374151);' becomes 'text-[#374151]'.
+          4.  Completely IGNORE any CSS rule related to 'font-cairo' or 'cairo'. Do not generate any 'font-*' classes for it.
+          5.  Do not approximate or find the "nearest" class for custom values. Use the exact value.
+          6.  Provide ONLY the final string of class names. Do not include CSS selectors, code blocks (\`\`\`), explanations, or any other text.
+
+          **Example 1 (Custom Color):**
+          CSS: color: #12a3b4;
+          TAILWIND: text-[#12a3b4]
+
+          **Example 2 (Standard Padding):**
+          CSS: padding: 1rem;
+          TAILWIND: p-4
+
+          **Example 3 (CSS Variable with Fallback):**
+          CSS: background-color: var(--primary, #8a2be2);
+          TAILWIND: bg-[#8a2be2]
+          
+          **Example 4 (Ignoring Font):**
+          CSS: font-family: 'cairo', sans-serif; color: #dc2626;
+          TAILWIND: text-red-600
+
+          ---
+          **CSS CODE TO CONVERT:**
+          \`\`\`css
+          ${css}
+          \`\`\`
+
+          **TAILWIND CLASSES:**`;
 
           let chatHistory = [];
           chatHistory.push({ role: "user", parts: [{ text: prompt }] });
 
           const payload = { contents: chatHistory };
           // NOTE: The API key is intentionally left blank. The environment will handle authentication.
-          const apiKey = "AIzaSyAONyTt502Mt3xqQVKzVRkVuXQ-69_XLlU";
+          const apiKey = ""; 
           const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
           // Make the API call
@@ -301,6 +328,10 @@
           ) {
             convertedText = result.candidates[0].content.parts[0].text;
           } else {
+            // Handle cases where the response might be blocked or empty
+            if (result.promptFeedback && result.promptFeedback.blockReason) {
+                 throw new Error(`Request blocked by API: ${result.promptFeedback.blockReason}`);
+            }
             throw new Error("Unexpected API response structure.");
           }
 
