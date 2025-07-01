@@ -1,398 +1,321 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI CSS to Tailwind Converter</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <!-- Highlight.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
     <style>
-      body {
-        font-family: "Inter", sans-serif;
-      }
-      /* Custom scrollbar for webkit browsers */
-      textarea::-webkit-scrollbar {
-        width: 8px;
-      }
-      textarea::-webkit-scrollbar-track {
-        background: #f1f5f9;
-        border-radius: 10px;
-      }
-      textarea::-webkit-scrollbar-thumb {
-        background: #94a3b8;
-        border-radius: 10px;
-      }
-      textarea::-webkit-scrollbar-thumb:hover {
-        background: #475569;
-      }
-      .lds-ellipsis {
-        display: inline-block;
-        position: relative;
-        width: 80px;
-        height: 80px;
-      }
-      .lds-ellipsis div {
-        position: absolute;
-        top: 33px;
-        width: 13px;
-        height: 13px;
-        border-radius: 50%;
-        background: #4f46e5;
-        animation-timing-function: cubic-bezier(0, 1, 1, 0);
-      }
-      .lds-ellipsis div:nth-child(1) {
-        left: 8px;
-        animation: lds-ellipsis1 0.6s infinite;
-      }
-      .lds-ellipsis div:nth-child(2) {
-        left: 8px;
-        animation: lds-ellipsis2 0.6s infinite;
-      }
-      .lds-ellipsis div:nth-child(3) {
-        left: 32px;
-        animation: lds-ellipsis2 0.6s infinite;
-      }
-      .lds-ellipsis div:nth-child(4) {
-        left: 56px;
-        animation: lds-ellipsis3 0.6s infinite;
-      }
-      @keyframes lds-ellipsis1 {
-        0% {
-          transform: scale(0);
+        body {
+            font-family: "Inter", sans-serif;
         }
-        100% {
-          transform: scale(1);
+
+        /* Custom scrollbar for a modern look */
+        textarea::-webkit-scrollbar,
+        pre::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
-      }
-      @keyframes lds-ellipsis3 {
-        0% {
-          transform: scale(1);
+        textarea::-webkit-scrollbar-track,
+        pre::-webkit-scrollbar-track {
+            background: #1f2937; /* bg-gray-800 */
+            border-radius: 10px;
         }
-        100% {
-          transform: scale(0);
+        textarea::-webkit-scrollbar-thumb,
+        pre::-webkit-scrollbar-thumb {
+            background: #4b5563; /* bg-gray-600 */
+            border-radius: 10px;
+            border: 2px solid #1f2937; /* bg-gray-800 */
         }
-      }
-      @keyframes lds-ellipsis2 {
-        0% {
-          transform: translate(0, 0);
+        textarea::-webkit-scrollbar-thumb:hover,
+        pre::-webkit-scrollbar-thumb:hover {
+            background: #6b7280; /* bg-gray-500 */
         }
-        100% {
-          transform: translate(24px, 0);
+
+        /* Cool glowing effect for the main button */
+        .glow-on-hover {
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
         }
-      }
+        .glow-on-hover:before {
+            content: '';
+            background: conic-gradient(from 180deg at 50% 50%, #a855f7, #6366f1, #3b82f6, #a855f7);
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            z-index: -1;
+            animation: glowing 5s linear infinite;
+        }
+        @keyframes glowing {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Custom loader animation */
+        .spinner {
+            width: 56px;
+            height: 56px;
+            display: grid;
+            animation: spinner-plncf9 4s infinite;
+        }
+        .spinner::before,
+        .spinner::after {
+            content: "";
+            grid-area: 1/1;
+            border: 9px solid;
+            border-radius: 50%;
+            border-color: #4f46e5 #4f46e5 #0000 #0000;
+            mix-blend-mode: darken;
+            animation: spinner-plncf9 1s infinite linear;
+        }
+        .spinner::after {
+            border-color: #0000 #0000 #dbdcef #dbdcef;
+            animation-direction: reverse;
+        }
+        @keyframes spinner-plncf9 {
+            100% { transform: rotate(1turn); }
+        }
     </style>
-  </head>
-  <body class="bg-slate-100 text-slate-800 antialiased">
-    <div class="container mx-auto px-4 py-8 md:py-12">
-      <!-- Header -->
-      <header class="text-center mb-8 md:mb-12">
-        <h1 class="text-3xl md:text-5xl font-bold text-indigo-600">
-          Smart CSS to Tailwind Converter
-        </h1>
-        <p class="mt-2 md:mt-4 text-md md:text-xl text-slate-600">
-          Let AI instantly translate your CSS into clean, utility-first Tailwind
-          classes.
-        </p>
-      </header>
-
-      <!-- Main Content -->
-      <main>
-        <!-- Converter Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-          <!-- CSS Input Card -->
-          <div class="bg-white rounded-xl shadow-md p-6">
-            <h2 class="text-xl font-semibold mb-4 text-slate-700">
-              Your CSS Code
-            </h2>
-            <textarea
-              id="cssInput"
-              class="w-full h-80 p-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 resize-none bg-slate-50 text-sm"
-              placeholder="/* Paste your CSS code here */&#10;&#10;.title {&#10;  font-family: 'cairo', sans-serif;&#10;  font-size: 24px;&#10;  color: #333;&#10;}"
-            ></textarea>
-          </div>
-
-          <!-- Tailwind Output Card -->
-          <div class="bg-white rounded-xl shadow-md p-6 relative">
-            <div class="flex justify-between items-center mb-4">
-              <h2 class="text-xl font-semibold text-slate-700">
-                Tailwind CSS Classes
-              </h2>
-              <button
-                id="copyButton"
-                title="Copy to Clipboard"
-                class="p-2 rounded-md hover:bg-slate-200 text-slate-500 hover:text-indigo-600 transition-colors duration-200"
-              >
-                <svg
-                  id="copyIcon"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                  <path
-                    d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
-                  ></path>
-                </svg>
-                <svg
-                  id="checkIcon"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="3"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="hidden text-green-500"
-                >
-                  <path d="M20 6 9 17l-5-5"></path>
-                </svg>
-              </button>
-            </div>
-            <div
-              id="outputContainer"
-              class="w-full h-80 p-4 border border-slate-300 rounded-lg bg-slate-900 text-slate-50 font-mono text-sm overflow-auto"
-            >
-              <div
-                id="loader"
-                class="w-full h-full flex-col justify-center items-center hidden"
-              >
-                <div class="lds-ellipsis">
-                  <div></div>
-                  <div></div>
-                  <div></div>
-                  <div></div>
+</head>
+<body class="bg-gray-900 text-slate-200 antialiased">
+    <div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900/50 p-4 sm:p-6 md:p-8">
+        <div class="container mx-auto">
+            <!-- Header -->
+            <header class="text-center mb-10 md:mb-16">
+                <div class="inline-block bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-indigo-400 to-blue-400 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block h-10 w-10 md:h-12 md:w-12"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg>
                 </div>
-                <p class="text-slate-400 mt-4">AI is converting...</p>
-              </div>
-              <pre
-                id="tailwindOutput"
-                class="w-full h-full whitespace-pre-wrap"
-              ></pre>
+                <h1 class="text-3xl md:text-5xl font-bold text-slate-100">
+                    AI CSS to Tailwind Converter
+                </h1>
+                <p class="mt-3 md:mt-4 text-md md:text-lg text-slate-400 max-w-2xl mx-auto">
+                    Instantly translate your vanilla CSS into clean, utility-first Tailwind classes with the power of AI.
+                </p>
+            </header>
+
+            <!-- Main Content -->
+            <main>
+                <!-- Converter Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+                    <!-- CSS Input Card -->
+                    <div class="bg-gray-800/50 rounded-xl shadow-2xl shadow-indigo-900/20 p-6 backdrop-blur-sm border border-gray-700/50">
+                        <h2 class="text-xl font-semibold mb-4 text-slate-200">
+                            Your CSS Code
+                        </h2>
+                        <div class="bg-gray-900 rounded-lg overflow-hidden">
+                            <textarea
+                                id="cssInput"
+                                class="w-full h-80 p-4 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 transition duration-150 resize-none bg-transparent text-slate-300 text-sm leading-relaxed"
+                                placeholder="/* Paste your CSS code here */&#10;&#10;.card {&#10;  background-color: #ffffff;&#10;  border-radius: 8px;&#10;  padding: 20px;&#10;}"
+                            ></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Tailwind Output Card -->
+                    <div class="bg-gray-800/50 rounded-xl shadow-2xl shadow-indigo-900/20 p-6 backdrop-blur-sm border border-gray-700/50 relative">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-slate-200">
+                                Tailwind CSS Classes
+                            </h2>
+                            <button
+                                id="copyButton"
+                                title="Copy to Clipboard"
+                                class="p-2 rounded-md bg-gray-700/50 hover:bg-gray-600/50 text-slate-400 hover:text-indigo-400 transition-all duration-200"
+                            >
+                                <svg id="copyIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <svg id="checkIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="hidden text-green-400"><path d="M20 6 9 17l-5-5"></path></svg>
+                            </button>
+                        </div>
+                        <div id="outputContainer" class="w-full h-80 bg-gray-900 rounded-lg text-sm overflow-auto">
+                             <div id="loader" class="w-full h-full flex-col justify-center items-center hidden">
+                                <div class="spinner"></div>
+                                <p class="text-slate-400 mt-4 text-sm">AI is converting...</p>
+                            </div>
+                            <pre id="tailwindOutputWrapper" class="w-full h-full"><code id="tailwindOutput" class="language-css w-full h-full whitespace-pre-wrap p-4"></code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <div class="text-center mt-8 md:mt-10">
+                    <button id="convertButton" class="glow-on-hover bg-indigo-600 text-white font-bold py-3 px-10 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-500/50 transform hover:scale-105 transition-all duration-300 shadow-lg shadow-indigo-600/30 disabled:opacity-50 disabled:scale-100 disabled:cursor-not-allowed">
+                        <span id="convertButtonText">Convert</span>
+                    </button>
+                </div>
+            </main>
+
+            <!-- Message Box -->
+            <div id="messageBox" class="hidden fixed bottom-5 right-5 text-white py-3 px-5 rounded-lg shadow-xl transition-all duration-300 transform translate-y-full opacity-0">
+                <p id="messageText"></p>
             </div>
-          </div>
         </div>
-
-        <!-- Action Button -->
-        <div class="text-center mt-6 md:mt-8">
-          <button
-            id="convertButton"
-            class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-600 focus:ring-opacity-50 transform hover:scale-105 transition-all duration-200 shadow-lg"
-          >
-            Convert
-          </button>
-        </div>
-
-        <!-- Message Box -->
-        <div
-          id="messageBox"
-          class="hidden fixed top-5 right-5 bg-red-500 text-white py-3 px-5 rounded-lg shadow-xl transition-transform transform translate-x-full"
-        >
-          <p id="messageText"></p>
-        </div>
-      </main>
     </div>
 
     <script type="module">
-      // --- DOM Element Selection ---
-      const convertButton = document.getElementById("convertButton");
-      const copyButton = document.getElementById("copyButton");
-      const cssInput = document.getElementById("cssInput");
-      const tailwindOutput = document.getElementById("tailwindOutput");
-      const loader = document.getElementById("loader");
-      const outputContainer = document.getElementById("outputContainer");
-      const copyIcon = document.getElementById("copyIcon");
-      const checkIcon = document.getElementById("checkIcon");
-      const messageBox = document.getElementById("messageBox");
-      const messageText = document.getElementById("messageText");
+        // --- DOM Element Selection ---
+        const convertButton = document.getElementById("convertButton");
+        const convertButtonText = document.getElementById("convertButtonText");
+        const copyButton = document.getElementById("copyButton");
+        const cssInput = document.getElementById("cssInput");
+        const tailwindOutput = document.getElementById("tailwindOutput");
+        const tailwindOutputWrapper = document.getElementById("tailwindOutputWrapper");
+        const loader = document.getElementById("loader");
+        const copyIcon = document.getElementById("copyIcon");
+        const checkIcon = document.getElementById("checkIcon");
+        const messageBox = document.getElementById("messageBox");
+        const messageText = document.getElementById("messageText");
 
-      // --- Event Listeners ---
-      convertButton.addEventListener("click", handleConversion);
-      copyButton.addEventListener("click", copyToClipboard);
+        // --- Event Listeners ---
+        convertButton.addEventListener("click", handleConversion);
+        copyButton.addEventListener("click", copyToClipboard);
 
-      // --- Functions ---
+        // --- Functions ---
 
-      /**
-       * Displays a message to the user.
-       * @param {string} message - The message to display.
-       * @param {string} type - 'error' or 'success'.
-       */
-      function showMessage(message, type = "error") {
-        messageText.textContent = message;
-        messageBox.className = `fixed top-5 right-5 text-white py-3 px-5 rounded-lg shadow-xl transition-transform transform ${
-          type === "error" ? "bg-red-500" : "bg-green-500"
-        }`;
-        messageBox.classList.remove("hidden", "translate-x-full");
-        messageBox.classList.add("translate-x-0");
-        setTimeout(() => {
-          messageBox.classList.remove("translate-x-0");
-          messageBox.classList.add("translate-x-full");
-        }, 3000);
-      }
+        /**
+         * Displays a message to the user.
+         * @param {string} message - The message to display.
+         * @param {string} type - 'error' or 'success'.
+         */
+        function showMessage(message, type = "error") {
+            messageText.textContent = message;
+            messageBox.className = `fixed bottom-5 right-5 text-white py-3 px-5 rounded-lg shadow-xl transition-all duration-300 transform ${
+                type === "error" ? "bg-red-500/80 backdrop-blur-sm" : "bg-green-500/80 backdrop-blur-sm"
+            }`;
+            messageBox.classList.remove("hidden", "translate-y-full", "opacity-0");
+            messageBox.classList.add("translate-y-0", "opacity-100");
 
-      /**
-       * Handles the click event for the convert button.
-       * It retrieves CSS input, validates it, and calls the AI for conversion.
-       */
-      async function handleConversion() {
-        const css = cssInput.value.trim();
-        if (!css) {
-          showMessage("Please enter some CSS code to convert.");
-          return;
+            setTimeout(() => {
+                messageBox.classList.remove("translate-y-0", "opacity-100");
+                messageBox.classList.add("translate-y-full", "opacity-0");
+                setTimeout(() => messageBox.classList.add("hidden"), 300);
+            }, 3000);
         }
 
-        // --- Show loading state ---
-        tailwindOutput.classList.add("hidden");
-        loader.style.display = "flex";
-        convertButton.disabled = true;
-        convertButton.textContent = "Converting...";
-
-        try {
-          // --- CONSTRUCT THE IMPROVED PROMPT ---
-          const prompt = `You are an expert Tailwind CSS developer. Convert the following CSS code into a single line of Tailwind CSS classes.
-
-          **Rules:**
-          1.  If a CSS value has a direct mapping to a standard Tailwind class, use the standard class (e.g., 'font-weight: 700;' -> 'font-bold').
-          2.  If a CSS value does NOT have a direct mapping, you MUST use Tailwind's arbitrary value syntax. For example:
-              - 'color: #0e9d57;' becomes 'text-[#0e9d57]'
-              - 'font-size: 15px;' becomes 'text-[15px]'
-          3.  If a CSS value uses a 'var()' function with a fallback value, IGNORE the variable name and USE the fallback value for the conversion. For example, 'color: var(--some-var, #374151);' becomes 'text-[#374151]'.
-          4.  Completely IGNORE any CSS rule related to 'font-cairo' or 'cairo'. Do not generate any 'font-*' classes for it.
-          5.  Do not approximate or find the "nearest" class for custom values. Use the exact value.
-          6.  Provide ONLY the final string of class names. Do not include CSS selectors, code blocks (\`\`\`), explanations, or any other text.
-
-          **Example 1 (Custom Color):**
-          CSS: color: #12a3b4;
-          TAILWIND: text-[#12a3b4]
-
-          **Example 2 (Standard Padding):**
-          CSS: padding: 1rem;
-          TAILWIND: p-4
-
-          **Example 3 (CSS Variable with Fallback):**
-          CSS: background-color: var(--primary, #8a2be2);
-          TAILWIND: bg-[#8a2be2]
-          
-          **Example 4 (Ignoring Font):**
-          CSS: font-family: 'cairo', sans-serif; color: #dc2626;
-          TAILWIND: text-red-600
-
-          ---
-          **CSS CODE TO CONVERT:**
-          \`\`\`css
-          ${css}
-          \`\`\`
-
-          **TAILWIND CLASSES:**`;
-
-          let chatHistory = [];
-          chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-
-          const payload = { contents: chatHistory };
-          // NOTE: The API key is intentionally left blank. The environment will handle authentication.
-          const apiKey = "AIzaSyAONyTt502Mt3xqQVKzVRkVuXQ-69_XLlU"; 
-          const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-          // Make the API call
-          const response = await fetch(apiUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-
-          if (!response.ok) {
-            throw new Error(
-              `API Error: ${response.status} ${response.statusText}`
-            );
-          }
-
-          const result = await response.json();
-
-          let convertedText = "";
-          if (
-            result.candidates &&
-            result.candidates.length > 0 &&
-            result.candidates[0].content &&
-            result.candidates[0].content.parts &&
-            result.candidates[0].content.parts.length > 0
-          ) {
-            convertedText = result.candidates[0].content.parts[0].text;
-          } else {
-            // Handle cases where the response might be blocked or empty
-            if (result.promptFeedback && result.promptFeedback.blockReason) {
-                 throw new Error(`Request blocked by API: ${result.promptFeedback.blockReason}`);
+        /**
+         * Handles the click event for the convert button.
+         * It retrieves CSS input, validates it, and calls the AI for conversion.
+         */
+        async function handleConversion() {
+            const css = cssInput.value.trim();
+            if (!css) {
+                showMessage("Please enter some CSS code to convert.");
+                return;
             }
-            throw new Error("Unexpected API response structure.");
-          }
 
-          // Clean the response to remove any markdown, extra quotes, or unwanted prefixes.
-          const cleanedText = convertedText
-            .replace(/```/g, "")
-            .replace(/class="/g, "")
-            .replace(/"/g, "")
-            .replace(/tailwind/g, "")
-            .replace(/css/g, "")
-            .trim();
+            // --- Show loading state ---
+            tailwindOutputWrapper.classList.add("hidden");
+            loader.style.display = "flex";
+            convertButton.disabled = true;
+            convertButtonText.textContent = "Converting...";
 
-          tailwindOutput.textContent = cleanedText;
-        } catch (error) {
-          console.error("Conversion failed:", error);
-          tailwindOutput.textContent =
-            "An error occurred. Please check the console for details.";
-          showMessage("Failed to convert CSS. Please try again.");
-        } finally {
-          // --- Hide loading state ---
-          loader.style.display = "none";
-          tailwindOutput.classList.remove("hidden");
-          convertButton.disabled = false;
-          convertButton.textContent = "Convert";
+            try {
+                const prompt = `You are an expert Tailwind CSS developer. Convert the following CSS code into a single line of Tailwind CSS classes.
+
+                **Rules:**
+                1.  If a CSS value has a direct mapping to a standard Tailwind class, use the standard class (e.g., 'font-weight: 700;' -> 'font-bold').
+                2.  If a CSS value does NOT have a direct mapping, you MUST use Tailwind's arbitrary value syntax. For example: 'color: #0e9d57;' becomes 'text-[#0e9d57]'
+                3.  Completely IGNORE any CSS rule related to 'font-family'. Do not generate any 'font-*' classes for it.
+                4.  Provide ONLY the final string of class names. Do not include CSS selectors, code blocks (\`\`\`), explanations, or any other text.
+
+                ---
+                **CSS CODE TO CONVERT:**
+                \`\`\`css
+                ${css}
+                \`\`\`
+
+                **TAILWIND CLASSES:**`;
+
+                let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+                const payload = { contents: chatHistory };
+                const apiKey = ""; // API Key is handled by the environment
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                let convertedText = "";
+                 if (
+                    result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0
+                ) {
+                    convertedText = result.candidates[0].content.parts[0].text;
+                } else {
+                     if (result.promptFeedback && result.promptFeedback.blockReason) {
+                           throw new Error(`Request blocked by API: ${result.promptFeedback.blockReason}`);
+                     }
+                    throw new Error("Unexpected API response structure.");
+                }
+
+                const cleanedText = convertedText.replace(/```/g, "").replace(/class="/g, "").replace(/"/g, "").replace(/tailwind/g, "").replace(/css/g, "").trim();
+
+                tailwindOutput.textContent = cleanedText;
+                // Apply syntax highlighting
+                hljs.highlightElement(tailwindOutput);
+
+            } catch (error) {
+                console.error("Conversion failed:", error);
+                tailwindOutput.textContent = "An error occurred. Please check the console for details.";
+                showMessage("Failed to convert CSS. Please try again.");
+            } finally {
+                // --- Hide loading state ---
+                loader.style.display = "none";
+                tailwindOutputWrapper.classList.remove("hidden");
+                convertButton.disabled = false;
+                convertButtonText.textContent = "Convert";
+            }
         }
-      }
 
-      /**
-       * Copies the content of the Tailwind output to the clipboard.
-       */
-      function copyToClipboard() {
-        const textToCopy = tailwindOutput.textContent;
-        if (!textToCopy) {
-          showMessage("Nothing to copy!");
-          return;
+        /**
+         * Copies the content of the Tailwind output to the clipboard.
+         */
+        function copyToClipboard() {
+            const textToCopy = tailwindOutput.textContent;
+            if (!textToCopy) {
+                showMessage("Nothing to copy!");
+                return;
+            }
+
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = textToCopy;
+            tempTextArea.style.position = "absolute";
+            tempTextArea.style.left = "-9999px";
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+
+            try {
+                document.execCommand("copy");
+                showMessage("Copied to clipboard!", "success");
+
+                copyIcon.classList.add("hidden");
+                checkIcon.classList.remove("hidden");
+                setTimeout(() => {
+                    copyIcon.classList.remove("hidden");
+                    checkIcon.classList.add("hidden");
+                }, 2000);
+            } catch (err) {
+                console.error("Failed to copy text: ", err);
+                showMessage("Failed to copy text.");
+            } finally {
+                document.body.removeChild(tempTextArea);
+            }
         }
-
-        // A temporary textarea is used to hold the text for the copy command.
-        const tempTextArea = document.createElement("textarea");
-        tempTextArea.value = textToCopy;
-        document.body.appendChild(tempTextArea);
-        tempTextArea.select();
-
-        try {
-          // Use document.execCommand as a fallback-safe method for clipboard access in iFrames.
-          document.execCommand("copy");
-
-          // Visual feedback for the user
-          copyIcon.classList.add("hidden");
-          checkIcon.classList.remove("hidden");
-          setTimeout(() => {
-            copyIcon.classList.remove("hidden");
-            checkIcon.classList.add("hidden");
-          }, 2000);
-        } catch (err) {
-          console.error("Failed to copy text: ", err);
-          showMessage("Failed to copy text.");
-        } finally {
-          document.body.removeChild(tempTextArea);
-        }
-      }
     </script>
-  </body>
+</body>
 </html>
