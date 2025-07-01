@@ -1,1 +1,377 @@
 
+<!DOCTYPE html>
+<html lang="en" class="light"> <!-- Default to light mode -->
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI CSS to Tailwind Converter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <!-- Highlight.js for syntax highlighting (dark theme is fine for both modes) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+    <script>
+        // Set dark mode class on page load
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        // Custom Tailwind config
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        // Teal color palette for light and dark modes
+                        teal: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            300: '#5eead4',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                            950: '#042f2e',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+        }
+
+        /* Custom scrollbar for a modern look */
+        textarea::-webkit-scrollbar,
+        pre::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        /* Light mode scrollbar */
+        html:not(.dark) textarea::-webkit-scrollbar-track,
+        html:not(.dark) pre::-webkit-scrollbar-track { background: #f0fdfa; }
+        html:not(.dark) textarea::-webkit-scrollbar-thumb,
+        html:not(.dark) pre::-webkit-scrollbar-thumb { background: #99f6e4; }
+        html:not(.dark) textarea::-webkit-scrollbar-thumb:hover,
+        html:not(.dark) pre::-webkit-scrollbar-thumb:hover { background: #5eead4; }
+
+        /* Dark mode scrollbar */
+        html.dark textarea::-webkit-scrollbar-track,
+        html.dark pre::-webkit-scrollbar-track { background: #134e4a; }
+        html.dark textarea::-webkit-scrollbar-thumb,
+        html.dark pre::-webkit-scrollbar-thumb { background: #0f766e; }
+        html.dark textarea::-webkit-scrollbar-thumb:hover,
+        html.dark pre::-webkit-scrollbar-thumb:hover { background: #0d9488; }
+
+
+        /* Cool glowing effect for the main button */
+        .glow-on-hover {
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .glow-on-hover:before {
+            content: '';
+            background: conic-gradient(from 180deg at 50% 50%, #5eead4, #14b8a6, #0f766e, #5eead4);
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            z-index: -1;
+            animation: glowing 5s linear infinite;
+        }
+        @keyframes glowing {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Custom loader animation */
+        .spinner {
+            width: 56px;
+            height: 56px;
+            display: grid;
+            animation: spinner-plncf9 4s infinite;
+        }
+        .spinner::before,
+        .spinner::after {
+            content: "";
+            grid-area: 1/1;
+            border: 9px solid;
+            border-radius: 50%;
+            mix-blend-mode: darken;
+            animation: spinner-plncf9 1s infinite linear;
+        }
+        html:not(.dark) .spinner::before { border-color: #14b8a6 #14b8a6 #0000 #0000; }
+        html:not(.dark) .spinner::after { border-color: #0000 #0000 #ccfbf1 #ccfbf1; animation-direction: reverse; }
+
+        html.dark .spinner::before { border-color: #2dd4bf #2dd4bf #0000 #0000; }
+        html.dark .spinner::after { border-color: #0000 #0000 #134e4a #134e4a; animation-direction: reverse; }
+
+
+        @keyframes spinner-plncf9 {
+            100% { transform: rotate(1turn); }
+        }
+    </style>
+</head>
+<body class="bg-teal-50 dark:bg-teal-950 text-teal-900 dark:text-teal-200 antialiased transition-colors duration-300">
+    <div class="min-h-screen p-4 sm:p-6 md:p-8">
+        <div class="container mx-auto">
+            <!-- Theme Toggle Button -->
+            <div class="absolute top-4 right-4">
+                <button id="theme-toggle" class="p-2 rounded-full bg-teal-200/50 dark:bg-teal-800/50 text-teal-600 dark:text-teal-300 hover:bg-teal-200 dark:hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-teal-50 dark:focus:ring-offset-teal-950 focus:ring-teal-500">
+                    <svg id="theme-toggle-dark-icon" class="hidden h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                    <svg id="theme-toggle-light-icon" class="hidden h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                </button>
+            </div>
+
+            <!-- Header -->
+            <header class="text-center mb-10 md:mb-16">
+                <div class="inline-block bg-clip-text text-transparent bg-gradient-to-r from-teal-500 to-teal-400 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block h-10 w-10 md:h-12 md:w-12"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg>
+                </div>
+                <h1 class="text-3xl md:text-5xl font-bold text-teal-800 dark:text-teal-100">
+                    AI CSS to Tailwind Converter
+                </h1>
+                <p class="mt-3 md:mt-4 text-md md:text-lg text-teal-600 dark:text-teal-400 max-w-2xl mx-auto">
+                    Instantly translate your vanilla CSS into clean, utility-first Tailwind classes with the power of AI.
+                </p>
+            </header>
+
+            <!-- Main Content -->
+            <main>
+                <!-- Converter Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+                    <!-- CSS Input Card -->
+                    <div class="bg-white/60 dark:bg-teal-900/50 rounded-xl shadow-lg dark:shadow-teal-950/20 p-6 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50">
+                        <h2 class="text-xl font-semibold mb-4 text-teal-800 dark:text-teal-200">
+                            Your CSS Code
+                        </h2>
+                        <div class="bg-teal-50/50 dark:bg-teal-950/50 rounded-lg overflow-hidden ring-1 ring-teal-200 dark:ring-teal-800">
+                            <textarea
+                                id="cssInput"
+                                class="w-full h-80 p-4 border-none rounded-lg focus:ring-2 focus:ring-teal-500 transition duration-150 resize-none bg-transparent text-teal-700 dark:text-teal-300 placeholder:text-teal-400 dark:placeholder:text-teal-600 text-sm leading-relaxed"
+                                placeholder="/* Paste your CSS code here */&#10;&#10;.card {&#10;  background-color: #ffffff;&#10;  border-radius: 8px;&#10;  padding: 20px;&#10;}"
+                            ></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Tailwind Output Card -->
+                    <div class="bg-white/60 dark:bg-teal-900/50 rounded-xl shadow-lg dark:shadow-teal-950/20 p-6 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50 relative">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-teal-800 dark:text-teal-200">
+                                Tailwind CSS Classes
+                            </h2>
+                            <button
+                                id="copyButton"
+                                title="Copy to Clipboard"
+                                class="p-2 rounded-md bg-teal-200/50 dark:bg-teal-800/50 text-teal-500 dark:text-teal-400 hover:bg-teal-200 dark:hover:bg-teal-800 hover:text-teal-600 dark:hover:text-teal-300 transition-all duration-200"
+                            >
+                                <svg id="copyIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <svg id="checkIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="hidden text-green-500 dark:text-green-400"><path d="M20 6 9 17l-5-5"></path></svg>
+                            </button>
+                        </div>
+                        <div id="outputContainer" class="w-full h-80 bg-gray-900 rounded-lg text-sm overflow-auto ring-1 ring-teal-200 dark:ring-teal-800">
+                             <div id="loader" class="w-full h-full flex-col justify-center items-center hidden">
+                                <div class="spinner"></div>
+                                <p class="text-teal-600 dark:text-teal-400 mt-4 text-sm">AI is converting...</p>
+                            </div>
+                            <pre id="tailwindOutputWrapper" class="w-full h-full"><code id="tailwindOutput" class="language-css w-full h-full whitespace-pre-wrap p-4"></code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <div class="text-center mt-8 md:mt-10">
+                    <button id="convertButton" class="glow-on-hover bg-teal-600 text-white font-bold py-3 px-10 rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-4 focus:ring-teal-500/50 transform hover:scale-105 transition-all duration-300 shadow-lg shadow-teal-600/30 disabled:opacity-50 disabled:scale-100 disabled:cursor-not-allowed">
+                        <span id="convertButtonText">Convert</span>
+                    </button>
+                </div>
+            </main>
+
+            <!-- Message Box -->
+            <div id="messageBox" class="hidden fixed bottom-5 right-5 text-white py-3 px-5 rounded-lg shadow-xl transition-all duration-300 transform translate-y-full opacity-0">
+                <p id="messageText"></p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // --- DOM Element Selection ---
+        const convertButton = document.getElementById("convertButton");
+        const convertButtonText = document.getElementById("convertButtonText");
+        const copyButton = document.getElementById("copyButton");
+        const cssInput = document.getElementById("cssInput");
+        const tailwindOutput = document.getElementById("tailwindOutput");
+        const tailwindOutputWrapper = document.getElementById("tailwindOutputWrapper");
+        const loader = document.getElementById("loader");
+        const copyIcon = document.getElementById("copyIcon");
+        const checkIcon = document.getElementById("checkIcon");
+        const messageBox = document.getElementById("messageBox");
+        const messageText = document.getElementById("messageText");
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+
+        // --- Theme Management ---
+        const isDarkMode = () => document.documentElement.classList.contains('dark');
+
+        const updateThemeIcon = () => {
+            themeToggleDarkIcon.classList.toggle('hidden', !isDarkMode());
+            themeToggleLightIcon.classList.toggle('hidden', isDarkMode());
+        };
+
+        const toggleTheme = () => {
+            if (isDarkMode()) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+            updateThemeIcon();
+        };
+        
+        // --- Event Listeners ---
+        themeToggleBtn.addEventListener('click', toggleTheme);
+        convertButton.addEventListener("click", handleConversion);
+        copyButton.addEventListener("click", copyToClipboard);
+
+        // --- Initializations ---
+        updateThemeIcon(); // Set the correct icon on page load
+
+        // --- Functions ---
+        function showMessage(message, type = "error") {
+            messageText.textContent = message;
+            messageBox.className = `fixed bottom-5 right-5 text-white py-3 px-5 rounded-lg shadow-xl transition-all duration-300 transform ${
+                type === "error" ? "bg-red-500/80 backdrop-blur-sm" : "bg-green-500/80 backdrop-blur-sm"
+            }`;
+            messageBox.classList.remove("hidden", "translate-y-full", "opacity-0");
+            messageBox.classList.add("translate-y-0", "opacity-100");
+
+            setTimeout(() => {
+                messageBox.classList.remove("translate-y-0", "opacity-100");
+                messageBox.classList.add("translate-y-full", "opacity-0");
+                setTimeout(() => messageBox.classList.add("hidden"), 300);
+            }, 3000);
+        }
+
+        async function handleConversion() {
+            const css = cssInput.value.trim();
+            if (!css) {
+                showMessage("Please enter some CSS code to convert.");
+                return;
+            }
+
+            tailwindOutputWrapper.classList.add("hidden");
+            loader.style.display = "flex";
+            convertButton.disabled = true;
+            convertButtonText.textContent = "Converting...";
+
+            try {
+                const prompt = `You are an expert Tailwind CSS developer. Convert the following CSS code into a single line of Tailwind CSS classes.
+
+                **Rules:**
+                1.  If a CSS value has a direct mapping to a standard Tailwind class, use the standard class (e.g., 'font-weight: 700;' -> 'font-bold').
+                2.  If a CSS value does NOT have a direct mapping, you MUST use Tailwind's arbitrary value syntax. For example: 'color: #0e9d57;' becomes 'text-[#0e9d57]'
+                3.  Completely IGNORE any CSS rule related to 'font-family'. Do not generate any 'font-*' classes for it.
+                4.  Provide ONLY the final string of class names. Do not include CSS selectors, code blocks (\`\`\`), explanations, or any other text.
+
+                ---
+                **CSS CODE TO CONVERT:**
+                \`\`\`css
+                ${css}
+                \`\`\`
+
+                **TAILWIND CLASSES:**`;
+
+                let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+                const payload = { contents: chatHistory };
+                const apiKey = "AIzaSyAONyTt502Mt3xqQVKzVRkVuXQ-69_XLlU"; // API Key is handled by the environment
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                let convertedText = "";
+                 if (
+                    result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0
+                ) {
+                    convertedText = result.candidates[0].content.parts[0].text;
+                } else {
+                     if (result.promptFeedback && result.promptFeedback.blockReason) {
+                           throw new Error(`Request blocked by API: ${result.promptFeedback.blockReason}`);
+                     }
+                    throw new Error("Unexpected API response structure.");
+                }
+
+                const cleanedText = convertedText.replace(/```/g, "").replace(/class="/g, "").replace(/"/g, "").replace(/tailwind/g, "").replace(/css/g, "").trim();
+
+                tailwindOutput.textContent = cleanedText;
+                hljs.highlightElement(tailwindOutput);
+
+            } catch (error) {
+                console.error("Conversion failed:", error);
+                tailwindOutput.textContent = "An error occurred. Please check the console for details.";
+                showMessage("Failed to convert CSS. Please try again.");
+            } finally {
+                loader.style.display = "none";
+                tailwindOutputWrapper.classList.remove("hidden");
+                convertButton.disabled = false;
+                convertButtonText.textContent = "Convert";
+            }
+        }
+
+        function copyToClipboard() {
+            const textToCopy = tailwindOutput.textContent;
+            if (!textToCopy) {
+                showMessage("Nothing to copy!");
+                return;
+            }
+
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = textToCopy;
+            tempTextArea.style.position = "absolute";
+            tempTextArea.style.left = "-9999px";
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+
+            try {
+                document.execCommand("copy");
+                showMessage("Copied to clipboard!", "success");
+
+                copyIcon.classList.add("hidden");
+                checkIcon.classList.remove("hidden");
+                setTimeout(() => {
+                    copyIcon.classList.remove("hidden");
+                    checkIcon.classList.add("hidden");
+                }, 2000);
+            } catch (err) {
+                console.error("Failed to copy text: ", err);
+                showMessage("Failed to copy text.");
+            } finally {
+                document.body.removeChild(tempTextArea);
+            }
+        }
+    </script>
+</body>
+</html>
